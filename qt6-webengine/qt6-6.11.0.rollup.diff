@@ -1,6 +1,6 @@
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/devtools-frontend/src/scripts/build/rollup.config.mjs b/qtwebengine/src/3rdparty/chromium/third_party/devtools-frontend/src/scripts/build/rollup.config.mjs
 --- a/qtwebengine/src/3rdparty/chromium/third_party/devtools-frontend/src/scripts/build/rollup.config.mjs	2026-03-26 21:44:21.598247230 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/devtools-frontend/src/scripts/build/rollup.config.mjs	2026-03-26 21:46:38.653056595 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/devtools-frontend/src/scripts/build/rollup.config.mjs	2026-03-27 12:49:54.027633376 +0800
 @@ -19,7 +19,7 @@ export default commandLineArgs => ({
      sourcemap: Boolean(commandLineArgs.configSourcemaps),
    }],
