@@ -1,0 +1,461 @@
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_de.ts b/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_de.ts
+--- a/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_de.ts	1970-01-01 08:00:00.000000000 +0800
++++ b/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_de.ts	2026-05-18 10:54:48.982083828 +0800
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++Run the update_translations CMake target to populate the source strings in this file.
++-->
++<!DOCTYPE TS>
++<TS version="2.1" language="de" sourcelanguage="en"/>
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_en.ts b/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_en.ts
+--- a/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_en.ts	1970-01-01 08:00:00.000000000 +0800
++++ b/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_en.ts	2026-05-18 10:54:48.982083828 +0800
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++Run the update_translations CMake target to populate the source strings in this file.
++-->
++<!DOCTYPE TS>
++<TS version="2.1" language="en" sourcelanguage="en"/>
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/cmake/QtToolchainHelpers.cmake b/qtwebengine/cmake/QtToolchainHelpers.cmake
+--- a/qtwebengine/cmake/QtToolchainHelpers.cmake	2026-05-18 10:19:59.526651968 +0800
++++ b/qtwebengine/cmake/QtToolchainHelpers.cmake	2026-05-18 10:22:51.962633016 +0800
+@@ -55,6 +55,8 @@ function(get_gn_arch result arch)
+         set(${result} "mips64el" PARENT_SCOPE)
+     elseif(arch STREQUAL "riscv64")
+         set(${result} "riscv64" PARENT_SCOPE)
++    elseif(arch STREQUAL "loongarch64")
++        set(${result} "loong64" PARENT_SCOPE)
+     else()
+         message(FATAL_ERROR "Unknown architecture: ${arch}")
+     endif()
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/base/system/sys_info.cc b/qtwebengine/src/3rdparty/chromium/base/system/sys_info.cc
+--- a/qtwebengine/src/3rdparty/chromium/base/system/sys_info.cc	2026-05-18 10:19:59.772005737 +0800
++++ b/qtwebengine/src/3rdparty/chromium/base/system/sys_info.cc	2026-05-18 10:23:31.890151237 +0800
+@@ -256,6 +256,8 @@ std::string SysInfo::ProcessCPUArchitect
+   return "ARM_64";
+ #elif defined(ARCH_CPU_RISCV64)
+   return "RISCV_64";
++#elif defined(ARCH_CPU_LOONGARCH64)
++  return "LOONGARCH_64";
+ #else
+   return std::string();
+ #endif
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/build/config/compiler/BUILD.gn b/qtwebengine/src/3rdparty/chromium/build/config/compiler/BUILD.gn
+--- a/qtwebengine/src/3rdparty/chromium/build/config/compiler/BUILD.gn	2026-05-18 10:19:59.899507331 +0800
++++ b/qtwebengine/src/3rdparty/chromium/build/config/compiler/BUILD.gn	2026-05-18 10:23:31.890592613 +0800
+@@ -765,7 +765,7 @@ config("compiler") {
+     if (is_linux && use_lld && !llvm_android_mainline && current_cpu != "arm" &&
+         current_cpu != "s390x" &&
+         default_toolchain != "//build/toolchain/cros:target") {
+-      cflags += [ "-Wa,--crel,--allow-experimental-crel" ]
++      # cflags += [ "-Wa,--crel,--allow-experimental-crel" ]
+     }
+   }
+ 
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/build/config/loongarch64.gni b/qtwebengine/src/3rdparty/chromium/build/config/loongarch64.gni
+--- a/qtwebengine/src/3rdparty/chromium/build/config/loongarch64.gni	2026-05-18 10:19:59.906008294 +0800
++++ b/qtwebengine/src/3rdparty/chromium/build/config/loongarch64.gni	2026-05-18 10:23:31.891050367 +0800
+@@ -7,7 +7,7 @@ import("//build/config/v8_target_cpu.gni
+ if (current_cpu == "loong64") {
+   declare_args() {
+     # LOONGARCH64 SIMD Arch compilation flag.
+-    loongarch64_use_lsx = false
++    loongarch64_use_lsx = true
+     loongarch64_use_lasx = false
+   }
+ }
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/build/toolchain/gcc_toolchain.gni b/qtwebengine/src/3rdparty/chromium/build/toolchain/gcc_toolchain.gni
+--- a/qtwebengine/src/3rdparty/chromium/build/toolchain/gcc_toolchain.gni	2026-05-18 10:19:59.941611706 +0800
++++ b/qtwebengine/src/3rdparty/chromium/build/toolchain/gcc_toolchain.gni	2026-05-18 10:23:40.678155974 +0800
+@@ -329,6 +329,12 @@ template("single_gcc_toolchain") {
+       extra_ldflags = ""
+     }
+ 
++    if (current_cpu == "loong64") {
++      extra_cflags += " -mcmodel=medium"
++      extra_cxxflags += " -mcmodel=medium"
++      extra_ldflags += " -mno-relax"
++    }
++
+     if (system_headers_in_deps) {
+       md = "-MD"
+     } else {
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/components/metrics/debug/metrics_internals_utils.cc b/qtwebengine/src/3rdparty/chromium/components/metrics/debug/metrics_internals_utils.cc
+--- a/qtwebengine/src/3rdparty/chromium/components/metrics/debug/metrics_internals_utils.cc	2026-05-18 10:20:02.259379724 +0800
++++ b/qtwebengine/src/3rdparty/chromium/components/metrics/debug/metrics_internals_utils.cc	2026-05-18 10:23:40.678409814 +0800
+@@ -73,6 +73,8 @@ std::string CpuArchitectureToString(
+       return "arm32";
+     case variations::Study::TRANSLATED_X86_64:
+       return "translated_x86_64";
++    case variations::Study::LOONGARCH64:
++      return "loongarch64";
+   }
+   NOTREACHED();
+ }
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/components/variations/proto/study.proto b/qtwebengine/src/3rdparty/chromium/components/variations/proto/study.proto
+--- a/qtwebengine/src/3rdparty/chromium/components/variations/proto/study.proto	2026-05-18 10:20:03.452243287 +0800
++++ b/qtwebengine/src/3rdparty/chromium/components/variations/proto/study.proto	2026-05-18 10:23:40.678551903 +0800
+@@ -262,6 +262,8 @@ message Study {
+     // A Mac-only value, indicating an x86-64 binary running on an arm64 host
+     // via "Rosetta 2" binary translation.
+     TRANSLATED_X86_64 = 4;
++
++    LOONGARCH64 = 5;
+   }
+ 
+   // Enum to pass as optional bool.
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/skia/BUILD.gn b/qtwebengine/src/3rdparty/chromium/skia/BUILD.gn
+--- a/qtwebengine/src/3rdparty/chromium/skia/BUILD.gn	2026-05-18 10:20:06.281589716 +0800
++++ b/qtwebengine/src/3rdparty/chromium/skia/BUILD.gn	2026-05-18 10:23:47.356518406 +0800
+@@ -164,7 +164,7 @@ config("skia_config") {
+   if (current_cpu == "loong64") {
+     cflags = [
+       "-mlsx",
+-      "-flax-vector-conversions=all",
++      "-flax-vector-conversions",
+     ]
+   }
+ }
+@@ -793,7 +793,7 @@ if (current_cpu == "loong64") {
+     sources = skia_opts.lasx_sources
+     cflags = [
+       "-mlasx",
+-      "-flax-vector-conversions=all",
++      "-flax-vector-conversions",
+     ]
+     visibility = [ ":skia_opts" ]
+   }
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/BUILD.gn b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/BUILD.gn
+--- a/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/BUILD.gn	2026-05-18 10:20:08.341916467 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/BUILD.gn	2026-05-18 10:23:47.357015267 +0800
+@@ -1684,7 +1684,7 @@ jumbo_component("platform") {
+   if (current_cpu == "loong64") {
+     cflags = [
+       "-mlsx",
+-      "-flax-vector-conversions=all",
++      "-flax-vector-conversions",
+     ]
+   }
+ 
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/audio/delay.cc b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/audio/delay.cc
+--- a/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/audio/delay.cc	2026-05-18 10:20:08.347341904 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/audio/delay.cc	2026-05-18 15:48:55.179614859 +0800
+@@ -107,8 +107,8 @@ double Delay::DelayTime(float sample_rat
+ #if !(defined(ARCH_CPU_X86_FAMILY) || defined(CPU_ARM_NEON))
+ // Default scalar versions if simd/neon are not available.
+ std::tuple<size_t, size_t> Delay::ProcessARateVector(
+-    float* destination,
+-    uint32_t frames_to_process) const {
++    base::span<float> destination,
++    size_t frames_to_process) const {
+   // We don't have a vectorized version, so just do nothing and return the 0 to
+   // indicate no frames processed and return the current write_index_.
+   return std::make_tuple(0, write_index_);
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h
+--- a/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h	2026-05-18 10:20:08.430055511 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h	2026-05-18 10:23:47.357419185 +0800
+@@ -91,19 +91,19 @@ ALWAYS_INLINE void PackOneRowOfRGBA8Litt
+   v4f32 mask_falpha = __lsx_vffint_s_w(mask_lalpha);
+   v16u8 ra_index = {0,19, 4,23, 8,27, 12,31};
+   for (unsigned i = 0; i < pixels_per_row_trunc; i += 4) {
+-    v16u8 bgra = *((__m128i*)(source));
++    __m128i bgra = *((__m128i*)(source));
+     //if A !=0, A=0; else A=0xFF
+-    v4f32 alpha_factor = __lsx_vseq_b(bgra, mask_zero);
++    __m128i alpha_factor = __lsx_vseq_b(bgra, mask_zero);
+     //if A!=0, A=A; else A=0xFF
+     alpha_factor = __lsx_vor_v(bgra, alpha_factor);
+     alpha_factor = __lsx_vsrli_w(alpha_factor, 24);
+-    alpha_factor = __lsx_vffint_s_w(alpha_factor);
+-    alpha_factor = __lsx_vfdiv_s(mask_falpha, alpha_factor);
++    alpha_factor = (__m128i) __lsx_vffint_s_w(alpha_factor);
++    alpha_factor = (__m128i) __lsx_vfdiv_s((__m128) mask_falpha, (__m128) alpha_factor);
+ 
+-    v16u8 component_r = __lsx_vand_v(bgra, mask_lalpha);
+-    component_r = __lsx_vffint_s_w(component_r);
+-    component_r = __lsx_vfmul_s(component_r, alpha_factor);
+-    component_r = __lsx_vftintrz_w_s(component_r);
++    __m128i component_r = __lsx_vand_v(bgra, mask_lalpha);
++    component_r = (__m128i) __lsx_vffint_s_w(component_r);
++    component_r = (__m128i) __lsx_vfmul_s((__m128) component_r, (__m128) alpha_factor);
++    component_r = __lsx_vftintrz_w_s((__m128) component_r);
+ 
+     v2u64 ra = __lsx_vshuf_b(bgra, component_r, ra_index);
+     __lsx_vstelm_d(ra, destination, 0, 0);
+@@ -138,19 +138,19 @@ ALWAYS_INLINE void PackOneRowOfRGBA8Litt
+   v4u32 mask_lalpha = __lsx_vreplgr2vr_w(0x0ff);
+   v4f32 mask_falpha = __lsx_vffint_s_w(mask_lalpha);
+   for (unsigned i = 0; i < pixels_per_row_trunc; i += 4) {
+-    v16u8 bgra = *((__m128i*)(source));
++    __m128i bgra = *((__m128i*)(source));
+     //if A !=0, A=0; else A=0xFF
+-    v4f32 alpha_factor = __lsx_vseq_b(bgra, mask_zero);
++    __m128i alpha_factor = __lsx_vseq_b(bgra, mask_zero);
+     //if A!=0, A=A; else A=0xFF
+     alpha_factor = __lsx_vor_v(bgra, alpha_factor);
+     alpha_factor = __lsx_vsrli_w(alpha_factor, 24);
+-    alpha_factor = __lsx_vffint_s_w(alpha_factor);
+-    alpha_factor = __lsx_vfdiv_s(mask_falpha, alpha_factor);
++    alpha_factor = (__m128i) __lsx_vffint_s_w(alpha_factor);
++    alpha_factor = (__m128i) __lsx_vfdiv_s((__m128) mask_falpha, (__m128) alpha_factor);
+ 
+-    v16u8 component_r = __lsx_vand_v(bgra, mask_lalpha);
+-    component_r = __lsx_vffint_s_w(component_r);
+-    component_r = __lsx_vfmul_s(component_r, alpha_factor);
+-    component_r = __lsx_vftintrz_w_s(component_r);
++    __m128i component_r = __lsx_vand_v(bgra, mask_lalpha);
++    component_r = (__m128i) __lsx_vffint_s_w(component_r);
++    component_r = (__m128i) __lsx_vfmul_s((__m128) component_r, (__m128) alpha_factor);
++    component_r = __lsx_vftintrz_w_s((__m128) component_r);
+ 
+     component_r = __lsx_vpickev_b(component_r, component_r);
+     component_r = __lsx_vpickev_b(component_r, component_r);
+@@ -172,41 +172,41 @@ ALWAYS_INLINE void PackOneRowOfRGBA8Litt
+   v4f32 mask_falpha = __lsx_vffint_s_w(mask_lalpha);
+   v16u8 rgba_index = {0,1,2,19, 4,5,6,23, 8,9,10,27, 12,13,14,31};
+   for (unsigned i = 0; i < pixels_per_row_trunc; i += 4) {
+-    v16u8 bgra = *((__m128i*)(source));
++    __m128i bgra = *((__m128i*)(source));
+     //if A !=0, A=0; else A=0xFF
+-    v4f32 alpha_factor = __lsx_vseq_b(bgra, mask_zero);
++    __m128i alpha_factor = __lsx_vseq_b(bgra, mask_zero);
+     //if A!=0, A=A; else A=0xFF
+     alpha_factor = __lsx_vor_v(bgra, alpha_factor);
+     alpha_factor = __lsx_vsrli_w(alpha_factor, 24);
+-    alpha_factor = __lsx_vffint_s_w(alpha_factor);
+-    alpha_factor = __lsx_vfdiv_s(mask_falpha, alpha_factor);
++    alpha_factor = (__m128i) __lsx_vffint_s_w(alpha_factor);
++    alpha_factor = (__m128i) __lsx_vfdiv_s((__m128) mask_falpha, (__m128) alpha_factor);
+ 
+     v16u8 bgra_01 = __lsx_vilvl_b(mask_zero, bgra);
+     v16u8 bgra_23 = __lsx_vilvh_b(mask_zero, bgra);
+-    v16u8 bgra_0 = __lsx_vilvl_b(mask_zero, bgra_01);
+-    v16u8 bgra_1 = __lsx_vilvh_b(mask_zero, bgra_01);
+-    v16u8 bgra_2 = __lsx_vilvl_b(mask_zero, bgra_23);
+-    v16u8 bgra_3 = __lsx_vilvh_b(mask_zero, bgra_23);
+-
+-    bgra_0 = __lsx_vffint_s_w(bgra_0);
+-    bgra_1 = __lsx_vffint_s_w(bgra_1);
+-    bgra_2 = __lsx_vffint_s_w(bgra_2);
+-    bgra_3 = __lsx_vffint_s_w(bgra_3);
+-
+-    v4f32 alpha_factor_0 = __lsx_vreplvei_w(alpha_factor, 0);
+-    v4f32 alpha_factor_1 = __lsx_vreplvei_w(alpha_factor, 1);
+-    v4f32 alpha_factor_2 = __lsx_vreplvei_w(alpha_factor, 2);
+-    v4f32 alpha_factor_3 = __lsx_vreplvei_w(alpha_factor, 3);
+-
+-    bgra_0 = __lsx_vfmul_s(alpha_factor_0, bgra_0);
+-    bgra_1 = __lsx_vfmul_s(alpha_factor_1, bgra_1);
+-    bgra_2 = __lsx_vfmul_s(alpha_factor_2, bgra_2);
+-    bgra_3 = __lsx_vfmul_s(alpha_factor_3, bgra_3);
+-
+-    bgra_0 = __lsx_vftintrz_w_s(bgra_0);
+-    bgra_1 = __lsx_vftintrz_w_s(bgra_1);
+-    bgra_2 = __lsx_vftintrz_w_s(bgra_2);
+-    bgra_3 = __lsx_vftintrz_w_s(bgra_3);
++    __m128i bgra_0 = __lsx_vilvl_b(mask_zero, bgra_01);
++    __m128i bgra_1 = __lsx_vilvh_b(mask_zero, bgra_01);
++    __m128i bgra_2 = __lsx_vilvl_b(mask_zero, bgra_23);
++    __m128i bgra_3 = __lsx_vilvh_b(mask_zero, bgra_23);
++
++    bgra_0 = (__m128i) __lsx_vffint_s_w(bgra_0);
++    bgra_1 = (__m128i) __lsx_vffint_s_w(bgra_1);
++    bgra_2 = (__m128i) __lsx_vffint_s_w(bgra_2);
++    bgra_3 = (__m128i) __lsx_vffint_s_w(bgra_3);
++
++    __m128i alpha_factor_0 = __lsx_vreplvei_w(alpha_factor, 0);
++    __m128i alpha_factor_1 = __lsx_vreplvei_w(alpha_factor, 1);
++    __m128i alpha_factor_2 = __lsx_vreplvei_w(alpha_factor, 2);
++    __m128i alpha_factor_3 = __lsx_vreplvei_w(alpha_factor, 3);
++
++    bgra_0 = (__m128i) __lsx_vfmul_s((__m128) alpha_factor_0, (__m128) bgra_0);
++    bgra_1 = (__m128i) __lsx_vfmul_s((__m128) alpha_factor_1, (__m128) bgra_1);
++    bgra_2 = (__m128i) __lsx_vfmul_s((__m128) alpha_factor_2, (__m128) bgra_2);
++    bgra_3 = (__m128i) __lsx_vfmul_s((__m128) alpha_factor_3, (__m128) bgra_3);
++
++    bgra_0 = __lsx_vftintrz_w_s((__m128) bgra_0);
++    bgra_1 = __lsx_vftintrz_w_s((__m128) bgra_1);
++    bgra_2 = __lsx_vftintrz_w_s((__m128) bgra_2);
++    bgra_3 = __lsx_vftintrz_w_s((__m128) bgra_3);
+ 
+     bgra_01 = __lsx_vpickev_b(bgra_1, bgra_0);
+     bgra_23 = __lsx_vpickev_b(bgra_3, bgra_2);
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/boringssl/src/include/openssl/target.h b/qtwebengine/src/3rdparty/chromium/third_party/boringssl/src/include/openssl/target.h
+--- a/qtwebengine/src/3rdparty/chromium/third_party/boringssl/src/include/openssl/target.h	2026-05-18 10:20:08.812514745 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/boringssl/src/include/openssl/target.h	2026-05-18 10:23:47.357638558 +0800
+@@ -54,6 +54,8 @@
+ #define OPENSSL_32_BIT
+ #elif defined(__myriad2__)
+ #define OPENSSL_32_BIT
++#elif defined(__loongarch__) && __SIZEOF_POINTER__ == 8
++#define OPENSSL_64_BIT
+ #else
+ // The list above enumerates the platforms that BoringSSL supports. For these
+ // platforms we keep a reasonable bar of not breaking them: automated test
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/skia/gn/core.gni b/qtwebengine/src/3rdparty/chromium/third_party/skia/gn/core.gni
+--- a/qtwebengine/src/3rdparty/chromium/third_party/skia/gn/core.gni	2026-05-18 10:20:19.992044555 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/gn/core.gni	2026-05-18 10:23:47.367203762 +0800
+@@ -283,7 +283,7 @@ skia_core_sources = [
+   "$_src/core/SkBitmapProcState.h",
+   "$_src/core/SkBitmapProcState_matrixProcs.cpp",
+   "$_src/core/SkBitmapProcState_opts.cpp",
+-  "$_src/core/SkBitmapProcState_opts_lasx.cpp",
++  #"$_src/core/SkBitmapProcState_opts_lasx.cpp",
+   "$_src/core/SkBitmapProcState_opts_ssse3.cpp",
+   "$_src/core/SkBlendMode.cpp",
+   "$_src/core/SkBlendModeBlender.cpp",
+@@ -298,7 +298,7 @@ skia_core_sources = [
+   "$_src/core/SkBlitRow_D32.cpp",
+   "$_src/core/SkBlitRow_opts.cpp",
+   "$_src/core/SkBlitRow_opts_hsw.cpp",
+-  "$_src/core/SkBlitRow_opts_lasx.cpp",
++  #"$_src/core/SkBlitRow_opts_lasx.cpp",
+   "$_src/core/SkBlitter.cpp",
+   "$_src/core/SkBlitter.h",
+   "$_src/core/SkBlitter_A8.cpp",
+@@ -593,7 +593,7 @@ skia_core_sources = [
+   "$_src/core/SkSwizzlePriv.h",
+   "$_src/core/SkSwizzler_opts.cpp",
+   "$_src/core/SkSwizzler_opts_hsw.cpp",
+-  "$_src/core/SkSwizzler_opts_lasx.cpp",
++  #"$_src/core/SkSwizzler_opts_lasx.cpp",
+   "$_src/core/SkSwizzler_opts_ssse3.cpp",
+   "$_src/core/SkSynchronizedResourceCache.cpp",
+   "$_src/core/SkSynchronizedResourceCache.h",
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/skia/include/private/base/SkFeatures.h b/qtwebengine/src/3rdparty/chromium/third_party/skia/include/private/base/SkFeatures.h
+--- a/qtwebengine/src/3rdparty/chromium/third_party/skia/include/private/base/SkFeatures.h	2026-05-18 10:20:20.022070763 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/include/private/base/SkFeatures.h	2026-05-18 10:23:47.367447373 +0800
+@@ -125,9 +125,9 @@
+ #endif
+ 
+ #ifndef SK_CPU_LSX_LEVEL
+-    #if defined(__loongarch_asx)
++    #if defined(__loongarch_asx) && 0
+         #define SK_CPU_LSX_LEVEL    SK_CPU_LSX_LEVEL_LASX
+-    #elif defined(__loongarch_sx)
++    #elif defined(__loongarch_sx) && 0
+         #define SK_CPU_LSX_LEVEL    SK_CPU_LSX_LEVEL_LSX
+     #endif
+ #endif
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBitmapProcState_opts.cpp b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBitmapProcState_opts.cpp
+--- a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBitmapProcState_opts.cpp	2026-05-18 10:20:20.305920139 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBitmapProcState_opts.cpp	2026-05-18 10:23:47.367587782 +0800
+@@ -22,7 +22,6 @@ namespace SkOpts {
+     DEFINE_DEFAULT(S32_alpha_D32_filter_DXDY);
+ 
+     void Init_BitmapProcState_ssse3();
+-    void Init_BitmapProcState_lasx();
+ 
+     static bool init() {
+     #if defined(SK_ENABLE_OPTIMIZE_SIZE)
+@@ -31,10 +30,6 @@ namespace SkOpts {
+         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSSE3
+             if (SkCpu::Supports(SkCpu::SSSE3)) { Init_BitmapProcState_ssse3(); }
+         #endif
+-    #elif defined(SK_CPU_LOONGARCH)
+-        #if SK_CPU_LSX_LEVEL < SK_CPU_LSX_LEVEL_LASX
+-            if (SkCpu::Supports(SkCpu::LOONGARCH_ASX)) { Init_BitmapProcState_lasx(); }
+-        #endif
+     #endif
+       return true;
+     }
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBlitRow_opts.cpp b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBlitRow_opts.cpp
+--- a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBlitRow_opts.cpp	2026-05-18 10:20:20.307207659 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBlitRow_opts.cpp	2026-05-18 10:23:47.367709343 +0800
+@@ -22,7 +22,6 @@ namespace SkOpts {
+     DEFINE_DEFAULT(blit_row_s32a_opaque);
+ 
+     void Init_BlitRow_hsw();
+-    void Init_BlitRow_lasx();
+ 
+     static bool init() {
+     #if defined(SK_ENABLE_OPTIMIZE_SIZE)
+@@ -31,10 +30,6 @@ namespace SkOpts {
+         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
+             if (SkCpu::Supports(SkCpu::HSW)) { Init_BlitRow_hsw(); }
+         #endif
+-    #elif defined(SK_CPU_LOONGARCH)
+-        #if SK_CPU_LSX_LEVEL < SK_CPU_LSX_LEVEL_LASX
+-            if (SkCpu::Supports(SkCpu::LOONGARCH_ASX)) { Init_BlitRow_lasx(); }
+-        #endif
+     #endif
+       return true;
+     }
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkSwizzler_opts.cpp b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkSwizzler_opts.cpp
+--- a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkSwizzler_opts.cpp	2026-05-18 10:20:20.339685825 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkSwizzler_opts.cpp	2026-05-18 10:23:47.367808445 +0800
+@@ -33,7 +33,6 @@ namespace SkOpts {
+ 
+     void Init_Swizzler_ssse3();
+     void Init_Swizzler_hsw();
+-    void Init_Swizzler_lasx();
+ 
+     static bool init() {
+     #if defined(SK_ENABLE_OPTIMIZE_SIZE)
+@@ -46,10 +45,6 @@ namespace SkOpts {
+         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
+             if (SkCpu::Supports(SkCpu::HSW)) { Init_Swizzler_hsw(); }
+         #endif
+-    #elif defined(SK_CPU_LOONGARCH)
+-        #if SK_CPU_LSX_LEVEL < SK_CPU_LSX_LEVEL_LASX
+-            if (SkCpu::Supports(SkCpu::LOONGARCH_ASX)) { Init_Swizzler_lasx(); }
+-        #endif
+     #endif
+       return true;
+     }
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/opts/SkOpts_SetTarget.h b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/opts/SkOpts_SetTarget.h
+--- a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/opts/SkOpts_SetTarget.h	2026-05-18 10:20:20.448138254 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/opts/SkOpts_SetTarget.h	2026-05-18 10:23:47.367930435 +0800
+@@ -136,9 +136,10 @@
+         #define SK_OPTS_NS lasx
+         // The intrinsic from lasxintrin.h is wrapped by the __loongarch_asx macro, so we need to define it.
+         #define __loongarch_asx
++        #define __loongarch_sx
+ 
+         #if defined(__clang__)
+-          #pragma clang attribute push(__attribute__((target("lasx"))), apply_to=function)
++          #pragma clang attribute push(__attribute__((target("lsx,lasx"))), apply_to=function)
+         #endif
+ 
+     #else
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Reactor/BUILD.gn b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Reactor/BUILD.gn
+--- a/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Reactor/BUILD.gn	2026-05-18 10:20:21.173623118 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Reactor/BUILD.gn	2026-05-18 10:23:47.368093423 +0800
+@@ -307,7 +307,11 @@ if (supports_subzero) {
+ 
+ if (supports_llvm) {
+   swiftshader_source_set("swiftshader_llvm_reactor") {
+-    llvm_dir = "../../third_party/llvm-10.0"
++    if (current_cpu == "loong64") {
++      llvm_dir = "../../third_party/llvm-16.0"
++    } else {
++      llvm_dir = "../../third_party/llvm-10.0"
++    }
+ 
+     deps = [
+       ":swiftshader_reactor_base",
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Vulkan/BUILD.gn b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Vulkan/BUILD.gn
+--- a/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Vulkan/BUILD.gn	2026-05-18 10:20:21.179373790 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Vulkan/BUILD.gn	2026-05-18 10:23:47.368243791 +0800
+@@ -229,6 +229,7 @@ swiftshader_shared_library("swiftshader_
+   }
+ 
+   deps = [ ":_swiftshader_libvulkan" ]
++  libs = [ "m" ]
+ }
+ 
+ swiftshader_static_library("swiftshader_libvulkan_static") {
+diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/third_party/llvm-10.0/BUILD.gn b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/third_party/llvm-10.0/BUILD.gn
+--- a/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/third_party/llvm-10.0/BUILD.gn	2026-05-18 10:20:21.192211608 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/third_party/llvm-10.0/BUILD.gn	2026-05-18 10:23:47.368458664 +0800
+@@ -159,6 +159,8 @@ swiftshader_llvm_source_set("swiftshader
+     deps += [ ":swiftshader_llvm_ppc" ]
+   } else if (current_cpu == "riscv64") {
+     deps += [ ":swiftshader_llvm_riscv64" ]
++  } else if (current_cpu == "loong64") {
++    # swiftshader unused in qt6-webengine
+   } else if (current_cpu == "x86" || current_cpu == "x64") {
+     deps += [ ":swiftshader_llvm_x86" ]
+   } else {

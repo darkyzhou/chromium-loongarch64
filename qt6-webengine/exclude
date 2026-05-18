@@ -2,5 +2,5 @@ cmake-build
 CMakeFiles
 config.tests
 Qt6BuildInternals
-.orig
+*.orig
 __pycache__
