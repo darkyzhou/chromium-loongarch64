@@ -1,6 +1,6 @@
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_de.ts b/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_de.ts
 --- a/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_de.ts	1970-01-01 08:00:00.000000000 +0800
-+++ b/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_de.ts	2026-05-18 10:54:48.982083828 +0800
++++ b/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_de.ts	2026-05-21 14:11:41.359009912 +0800
 @@ -0,0 +1,6 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<!--
@@ -10,7 +10,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
 +<TS version="2.1" language="de" sourcelanguage="en"/>
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_en.ts b/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_en.ts
 --- a/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_en.ts	1970-01-01 08:00:00.000000000 +0800
-+++ b/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_en.ts	2026-05-18 10:54:48.982083828 +0800
++++ b/qtdoc/examples/demos/documentviewer/plugins/Q3DViewer/q3dviewer_en.ts	2026-05-21 14:11:41.359258783 +0800
 @@ -0,0 +1,6 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<!--
@@ -20,7 +20,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
 +<TS version="2.1" language="en" sourcelanguage="en"/>
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/cmake/QtToolchainHelpers.cmake b/qtwebengine/cmake/QtToolchainHelpers.cmake
 --- a/qtwebengine/cmake/QtToolchainHelpers.cmake	2026-05-18 10:19:59.526651968 +0800
-+++ b/qtwebengine/cmake/QtToolchainHelpers.cmake	2026-05-18 10:22:51.962633016 +0800
++++ b/qtwebengine/cmake/QtToolchainHelpers.cmake	2026-05-21 14:11:41.359563079 +0800
 @@ -55,6 +55,8 @@ function(get_gn_arch result arch)
          set(${result} "mips64el" PARENT_SCOPE)
      elseif(arch STREQUAL "riscv64")
@@ -32,7 +32,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
      endif()
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/base/system/sys_info.cc b/qtwebengine/src/3rdparty/chromium/base/system/sys_info.cc
 --- a/qtwebengine/src/3rdparty/chromium/base/system/sys_info.cc	2026-05-18 10:19:59.772005737 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/base/system/sys_info.cc	2026-05-18 10:23:31.890151237 +0800
++++ b/qtwebengine/src/3rdparty/chromium/base/system/sys_info.cc	2026-05-21 14:11:41.359847287 +0800
 @@ -256,6 +256,8 @@ std::string SysInfo::ProcessCPUArchitect
    return "ARM_64";
  #elif defined(ARCH_CPU_RISCV64)
@@ -44,7 +44,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
  #endif
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/build/config/compiler/BUILD.gn b/qtwebengine/src/3rdparty/chromium/build/config/compiler/BUILD.gn
 --- a/qtwebengine/src/3rdparty/chromium/build/config/compiler/BUILD.gn	2026-05-18 10:19:59.899507331 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/build/config/compiler/BUILD.gn	2026-05-18 10:23:31.890592613 +0800
++++ b/qtwebengine/src/3rdparty/chromium/build/config/compiler/BUILD.gn	2026-05-21 14:11:41.360315001 +0800
 @@ -765,7 +765,7 @@ config("compiler") {
      if (is_linux && use_lld && !llvm_android_mainline && current_cpu != "arm" &&
          current_cpu != "s390x" &&
@@ -56,7 +56,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
  
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/build/config/loongarch64.gni b/qtwebengine/src/3rdparty/chromium/build/config/loongarch64.gni
 --- a/qtwebengine/src/3rdparty/chromium/build/config/loongarch64.gni	2026-05-18 10:19:59.906008294 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/build/config/loongarch64.gni	2026-05-18 10:23:31.891050367 +0800
++++ b/qtwebengine/src/3rdparty/chromium/build/config/loongarch64.gni	2026-05-21 14:11:41.360783265 +0800
 @@ -7,7 +7,7 @@ import("//build/config/v8_target_cpu.gni
  if (current_cpu == "loong64") {
    declare_args() {
@@ -68,7 +68,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
  }
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/build/toolchain/gcc_toolchain.gni b/qtwebengine/src/3rdparty/chromium/build/toolchain/gcc_toolchain.gni
 --- a/qtwebengine/src/3rdparty/chromium/build/toolchain/gcc_toolchain.gni	2026-05-18 10:19:59.941611706 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/build/toolchain/gcc_toolchain.gni	2026-05-18 10:23:40.678155974 +0800
++++ b/qtwebengine/src/3rdparty/chromium/build/toolchain/gcc_toolchain.gni	2026-05-21 14:11:41.361033265 +0800
 @@ -329,6 +329,12 @@ template("single_gcc_toolchain") {
        extra_ldflags = ""
      }
@@ -84,7 +84,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
      } else {
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/components/metrics/debug/metrics_internals_utils.cc b/qtwebengine/src/3rdparty/chromium/components/metrics/debug/metrics_internals_utils.cc
 --- a/qtwebengine/src/3rdparty/chromium/components/metrics/debug/metrics_internals_utils.cc	2026-05-18 10:20:02.259379724 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/components/metrics/debug/metrics_internals_utils.cc	2026-05-18 10:23:40.678409814 +0800
++++ b/qtwebengine/src/3rdparty/chromium/components/metrics/debug/metrics_internals_utils.cc	2026-05-21 14:11:41.361339891 +0800
 @@ -73,6 +73,8 @@ std::string CpuArchitectureToString(
        return "arm32";
      case variations::Study::TRANSLATED_X86_64:
@@ -96,7 +96,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
  }
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/components/variations/proto/study.proto b/qtwebengine/src/3rdparty/chromium/components/variations/proto/study.proto
 --- a/qtwebengine/src/3rdparty/chromium/components/variations/proto/study.proto	2026-05-18 10:20:03.452243287 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/components/variations/proto/study.proto	2026-05-18 10:23:40.678551903 +0800
++++ b/qtwebengine/src/3rdparty/chromium/components/variations/proto/study.proto	2026-05-21 14:11:41.361534866 +0800
 @@ -262,6 +262,8 @@ message Study {
      // A Mac-only value, indicating an x86-64 binary running on an arm64 host
      // via "Rosetta 2" binary translation.
@@ -108,7 +108,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
    // Enum to pass as optional bool.
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/skia/BUILD.gn b/qtwebengine/src/3rdparty/chromium/skia/BUILD.gn
 --- a/qtwebengine/src/3rdparty/chromium/skia/BUILD.gn	2026-05-18 10:20:06.281589716 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/skia/BUILD.gn	2026-05-18 10:23:47.356518406 +0800
++++ b/qtwebengine/src/3rdparty/chromium/skia/BUILD.gn	2026-05-21 14:11:41.369001366 +0800
 @@ -164,7 +164,7 @@ config("skia_config") {
    if (current_cpu == "loong64") {
      cflags = [
@@ -129,7 +129,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
    }
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/BUILD.gn b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/BUILD.gn
 --- a/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/BUILD.gn	2026-05-18 10:20:08.341916467 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/BUILD.gn	2026-05-18 10:23:47.357015267 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/BUILD.gn	2026-05-21 14:11:41.369455591 +0800
 @@ -1684,7 +1684,7 @@ jumbo_component("platform") {
    if (current_cpu == "loong64") {
      cflags = [
@@ -141,7 +141,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
  
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/audio/delay.cc b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/audio/delay.cc
 --- a/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/audio/delay.cc	2026-05-18 10:20:08.347341904 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/audio/delay.cc	2026-05-18 15:48:55.179614859 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/audio/delay.cc	2026-05-21 14:11:41.369904216 +0800
 @@ -107,8 +107,8 @@ double Delay::DelayTime(float sample_rat
  #if !(defined(ARCH_CPU_X86_FAMILY) || defined(CPU_ARM_NEON))
  // Default scalar versions if simd/neon are not available.
@@ -155,7 +155,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
    return std::make_tuple(0, write_index_);
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h
 --- a/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h	2026-05-18 10:20:08.430055511 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h	2026-05-18 10:23:47.357419185 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h	2026-05-21 14:11:41.370123519 +0800
 @@ -91,19 +91,19 @@ ALWAYS_INLINE void PackOneRowOfRGBA8Litt
    v4f32 mask_falpha = __lsx_vffint_s_w(mask_lalpha);
    v16u8 ra_index = {0,19, 4,23, 8,27, 12,31};
@@ -284,7 +284,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
      bgra_23 = __lsx_vpickev_b(bgra_3, bgra_2);
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/boringssl/src/include/openssl/target.h b/qtwebengine/src/3rdparty/chromium/third_party/boringssl/src/include/openssl/target.h
 --- a/qtwebengine/src/3rdparty/chromium/third_party/boringssl/src/include/openssl/target.h	2026-05-18 10:20:08.812514745 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/boringssl/src/include/openssl/target.h	2026-05-18 10:23:47.357638558 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/boringssl/src/include/openssl/target.h	2026-05-21 14:11:41.370413747 +0800
 @@ -54,6 +54,8 @@
  #define OPENSSL_32_BIT
  #elif defined(__myriad2__)
@@ -296,7 +296,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
  // platforms we keep a reasonable bar of not breaking them: automated test
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/skia/gn/core.gni b/qtwebengine/src/3rdparty/chromium/third_party/skia/gn/core.gni
 --- a/qtwebengine/src/3rdparty/chromium/third_party/skia/gn/core.gni	2026-05-18 10:20:19.992044555 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/gn/core.gni	2026-05-18 10:23:47.367203762 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/gn/core.gni	2026-05-21 14:11:41.383115630 +0800
 @@ -283,7 +283,7 @@ skia_core_sources = [
    "$_src/core/SkBitmapProcState.h",
    "$_src/core/SkBitmapProcState_matrixProcs.cpp",
@@ -326,7 +326,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
    "$_src/core/SkSynchronizedResourceCache.h",
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/skia/include/private/base/SkFeatures.h b/qtwebengine/src/3rdparty/chromium/third_party/skia/include/private/base/SkFeatures.h
 --- a/qtwebengine/src/3rdparty/chromium/third_party/skia/include/private/base/SkFeatures.h	2026-05-18 10:20:20.022070763 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/include/private/base/SkFeatures.h	2026-05-18 10:23:47.367447373 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/include/private/base/SkFeatures.h	2026-05-21 14:11:41.383389309 +0800
 @@ -125,9 +125,9 @@
  #endif
  
@@ -341,7 +341,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
  #endif
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBitmapProcState_opts.cpp b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBitmapProcState_opts.cpp
 --- a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBitmapProcState_opts.cpp	2026-05-18 10:20:20.305920139 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBitmapProcState_opts.cpp	2026-05-18 10:23:47.367587782 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBitmapProcState_opts.cpp	2026-05-21 14:11:41.383629450 +0800
 @@ -22,7 +22,6 @@ namespace SkOpts {
      DEFINE_DEFAULT(S32_alpha_D32_filter_DXDY);
  
@@ -363,7 +363,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
      }
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBlitRow_opts.cpp b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBlitRow_opts.cpp
 --- a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBlitRow_opts.cpp	2026-05-18 10:20:20.307207659 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBlitRow_opts.cpp	2026-05-18 10:23:47.367709343 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkBlitRow_opts.cpp	2026-05-21 14:11:41.383807536 +0800
 @@ -22,7 +22,6 @@ namespace SkOpts {
      DEFINE_DEFAULT(blit_row_s32a_opaque);
  
@@ -385,7 +385,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
      }
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkSwizzler_opts.cpp b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkSwizzler_opts.cpp
 --- a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkSwizzler_opts.cpp	2026-05-18 10:20:20.339685825 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkSwizzler_opts.cpp	2026-05-18 10:23:47.367808445 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/core/SkSwizzler_opts.cpp	2026-05-21 14:11:41.383980743 +0800
 @@ -33,7 +33,6 @@ namespace SkOpts {
  
      void Init_Swizzler_ssse3();
@@ -407,7 +407,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
      }
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/opts/SkOpts_SetTarget.h b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/opts/SkOpts_SetTarget.h
 --- a/qtwebengine/src/3rdparty/chromium/third_party/skia/src/opts/SkOpts_SetTarget.h	2026-05-18 10:20:20.448138254 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/opts/SkOpts_SetTarget.h	2026-05-18 10:23:47.367930435 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/skia/src/opts/SkOpts_SetTarget.h	2026-05-21 14:11:41.384158739 +0800
 @@ -136,9 +136,10 @@
          #define SK_OPTS_NS lasx
          // The intrinsic from lasxintrin.h is wrapped by the __loongarch_asx macro, so we need to define it.
@@ -422,7 +422,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
      #else
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Reactor/BUILD.gn b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Reactor/BUILD.gn
 --- a/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Reactor/BUILD.gn	2026-05-18 10:20:21.173623118 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Reactor/BUILD.gn	2026-05-18 10:23:47.368093423 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Reactor/BUILD.gn	2026-05-21 14:11:41.384386351 +0800
 @@ -307,7 +307,11 @@ if (supports_subzero) {
  
  if (supports_llvm) {
@@ -438,7 +438,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
        ":swiftshader_reactor_base",
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Vulkan/BUILD.gn b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Vulkan/BUILD.gn
 --- a/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Vulkan/BUILD.gn	2026-05-18 10:20:21.179373790 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Vulkan/BUILD.gn	2026-05-18 10:23:47.368243791 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/src/Vulkan/BUILD.gn	2026-05-21 14:11:41.384592655 +0800
 @@ -229,6 +229,7 @@ swiftshader_shared_library("swiftshader_
    }
  
@@ -449,7 +449,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r
  swiftshader_static_library("swiftshader_libvulkan_static") {
 diff '--color=auto' -p -X ../chromium-loongarch64/qt6-webengine/exclude -N -u -r a/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/third_party/llvm-10.0/BUILD.gn b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/third_party/llvm-10.0/BUILD.gn
 --- a/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/third_party/llvm-10.0/BUILD.gn	2026-05-18 10:20:21.192211608 +0800
-+++ b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/third_party/llvm-10.0/BUILD.gn	2026-05-18 10:23:47.368458664 +0800
++++ b/qtwebengine/src/3rdparty/chromium/third_party/swiftshader/third_party/llvm-10.0/BUILD.gn	2026-05-21 14:11:41.385301580 +0800
 @@ -159,6 +159,8 @@ swiftshader_llvm_source_set("swiftshader
      deps += [ ":swiftshader_llvm_ppc" ]
    } else if (current_cpu == "riscv64") {
