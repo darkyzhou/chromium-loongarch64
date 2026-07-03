@@ -6,6 +6,8 @@ shader-object-unlinked-spirv.txt
 *.profdata
 index
 gen.sh
+gpu/webgpu/dawn_commit_hash.h
+dawn_commit_hash.h
 log
 *.bak
 *.orig

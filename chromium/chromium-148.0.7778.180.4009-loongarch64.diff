@@ -1,7 +1,7 @@
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/base/system/sys_info.cc b/base/system/sys_info.cc
 --- a/base/system/sys_info.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/base/system/sys_info.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -254,6 +254,8 @@ std::string SysInfo::ProcessCPUArchitect
+@@ -273,6 +273,8 @@ std::string SysInfo::ProcessCPUArchitect
    return "ARM_64";
  #elif defined(ARCH_CPU_RISCV64)
    return "RISCV_64";
@@ -10,35 +10,117 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/ba
  #else
    return std::string();
  #endif
+diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+--- a/build/config/compiler/BUILD.gn	2000-01-01 00:00:00.000000000 +0800
++++ b/build/config/compiler/BUILD.gn	2000-01-01 00:00:00.000000000 +0800
+@@ -31,6 +31,9 @@ if (current_cpu == "mipsel" || current_c
+     current_cpu == "mips" || current_cpu == "mips64") {
+   import("//build/config/mips.gni")
+ }
++if (current_cpu == "loong64") {
++  import("//build/config/loongarch64.gni")
++}
+ if (is_mac) {
+   import("//build/config/apple/symbols.gni")
+ }
+@@ -627,8 +630,8 @@ config("compiler") {
+ 
+     # The performance improvement does not seem worth the risk. See
+     # https://crbug.com/484082200 for background and https://crrev.com/c/7593035
+-    # for discussion.
+-    if (!is_wasm) {
++    # for discussion. This flag is currently Chromium-clang-only.
++    if (!is_wasm && clang_base_path == default_clang_base_path) {
+       cflags += [ "-fno-lifetime-dse" ]
+     }
+ 
+@@ -1645,6 +1648,10 @@ config("compiler_cpu_abi") {
+         "-mabi=lp64d",
+         "-mcmodel=medium",
+       ]
++      if (loongarch64_use_lsx) {
++        cflags += [ "-march=la64v1.0" ]
++        ldflags += [ "-march=la64v1.0" ]
++      }
+     } else if (current_cpu == "s390x") {
+       if (is_clang) {
+         cflags += [ "--target=s390x-unknown-linux-gnu" ]
+@@ -1901,42 +1908,18 @@ config("clang_warning_suppression") {
+ #
+ # See also: https://crbug.com/40891132#comment10
+ config("sanitize_c_array_bounds") {
+-  if (!is_ubsan && is_clang && !(is_asan && target_cpu == "x86")) {
+-    cflags = [
+-      "-fsanitize=array-bounds",
+-      "-fsanitize-trap=array-bounds",
+-
+-      # Some code users feature detection to determine if UBSAN (or any
+-      # sanitizer) is enabled, they then do expensive debug like operations. We
+-      # want to suppress this behaviour since we want to keep performance costs
+-      # as low as possible while having these checks.
+-      "-fsanitize-ignore-for-ubsan-feature=array-bounds",
+-
+-      # Because we've enabled array-bounds sanitizing we also want to suppress
+-      # the related warning about "unsafe-buffer-usage-in-static-sized-array",
+-      # since we know that the array bounds sanitizing will catch any out-of-
+-      # bounds accesses.
+-      "-Wno-unsafe-buffer-usage-in-static-sized-array",
+-    ]
+-  }
++  # Disabled for LoongArch64 native LLVM builds. Without Chromium's patched
++  # -fsanitize-ignore-for-ubsan-feature flag, trap-only UBSan features make V8
++  # believe a full sanitizer runtime is linked and break mksnapshot.
+ }
+ 
+ # Enable UBSan subset to ensure we always hit `return` statement in non-void
+ # functions (https://crbug.com/489565636). This is equivalent to inserting
+ # `NOTREACHED()` at the end of such functions.
+ config("sanitize_return") {
+-  if (!is_ubsan && is_clang) {
+-    cflags = [
+-      "-fsanitize=return",
+-      "-fsanitize-trap=return",
+-
+-      # Some code users feature detection to determine if UBSAN (or any
+-      # sanitizer) is enabled, they then do expensive debug like operations. We
+-      # want to suppress this behaviour since we want to keep performance costs
+-      # as low as possible while having these checks.
+-      "-fsanitize-ignore-for-ubsan-feature=return",
+-    ]
+-  }
++  # Disabled for LoongArch64 native LLVM builds. Without Chromium's patched
++  # -fsanitize-ignore-for-ubsan-feature flag, trap-only UBSan features make V8
++  # believe a full sanitizer runtime is linked and break mksnapshot.
+ }
+ 
+ config("rustc_revision") {
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/build/config/loongarch64.gni b/build/config/loongarch64.gni
 --- a/build/config/loongarch64.gni	2000-01-01 00:00:00.000000000 +0800
 +++ b/build/config/loongarch64.gni	2000-01-01 00:00:00.000000000 +0800
-@@ -7,7 +7,7 @@ import("//build/config/v8_target_cpu.gni
+@@ -6,8 +6,17 @@ import("//build/config/v8_target_cpu.gni
+ 
  if (current_cpu == "loong64") {
    declare_args() {
-     # LOONGARCH64 SIMD Arch compilation flag.
+-    # LOONGARCH64 SIMD Arch compilation flag.
 -    loongarch64_use_lsx = false
++    # LoongArch64 LSX baseline switch.
++    #
++    # Chromium LoongArch64 builds in this tree target desktop/server
++    # LoongArch64 and assume LSX (128-bit SIMD) as the default baseline.
++    # Keep this enabled for supported Electron builds. Setting this to false
++    # is only intended for bring-up and diagnostics, and is not expected to
++    # produce a fully supported build.
 +    loongarch64_use_lsx = true
++
++    # LASX (256-bit SIMD) is not part of the baseline. Libraries may use it
++    # only behind their own compile-time and runtime dispatch gates.
      loongarch64_use_lasx = false
    }
  }
-diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/build/rust/gni_impl/rust_target.gni b/build/rust/gni_impl/rust_target.gni
---- a/build/rust/gni_impl/rust_target.gni	2000-01-01 00:00:00.000000000 +0800
-+++ b/build/rust/gni_impl/rust_target.gni	2000-01-01 00:00:00.000000000 +0800
-@@ -445,6 +445,9 @@ template("rust_target") {
-       if (_rustc_metadata != "") {
-         rustflags += [ "-Cmetadata=${_rustc_metadata}" ]
-       }
-+      if (current_cpu == "loong64") {
-+        rustflags += [ "-Ccode-model=medium" ]
-+      }
-       rustenv = _rustenv
- 
-       if (_generate_crate_root) {
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/chrome/browser/extensions/api/runtime/chrome_runtime_api_delegate.cc b/chrome/browser/extensions/api/runtime/chrome_runtime_api_delegate.cc
 --- a/chrome/browser/extensions/api/runtime/chrome_runtime_api_delegate.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/chrome/browser/extensions/api/runtime/chrome_runtime_api_delegate.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -342,6 +342,8 @@ extensions::api::runtime::PlatformNaclAr
+@@ -347,6 +347,8 @@ extensions::api::runtime::PlatformNaclAr
    return extensions::api::runtime::PlatformNaclArch::kMips;
  #elif defined(ARCH_CPU_MIPS64EL)
    return extensions::api::runtime::PlatformNaclArch::kMips64;
@@ -47,7 +129,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/ch
  #else
    // NOTE: Other architectures did not support extensions at the time
    // of NaCl removal.
-@@ -383,6 +385,8 @@ bool ChromeRuntimeAPIDelegate::GetPlatfo
+@@ -388,6 +390,8 @@ bool ChromeRuntimeAPIDelegate::GetPlatfo
      info->arch = extensions::api::runtime::PlatformArch::kMips64;
    } else if (arch == "riscv64") {
      info->arch = extensions::api::runtime::PlatformArch::kRiscv64;
@@ -59,7 +141,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/ch
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
 --- a/components/embedder_support/user_agent_utils.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/components/embedder_support/user_agent_utils.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -805,6 +805,8 @@ std::string GetCpuArchitecture() {
+@@ -744,6 +744,8 @@ std::string GetCpuArchitecture() {
                cpu_info.substr(2, 2) == "86") ||
               base::StartsWith(cpu_info, "x86")) {
      return "x86";
@@ -71,7 +153,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/co
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/components/metrics/debug/metrics_internals_utils.cc b/components/metrics/debug/metrics_internals_utils.cc
 --- a/components/metrics/debug/metrics_internals_utils.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/components/metrics/debug/metrics_internals_utils.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -73,6 +73,8 @@ std::string CpuArchitectureToString(
+@@ -76,6 +76,8 @@ std::string CpuArchitectureToString(
        return "arm32";
      case variations::Study::TRANSLATED_X86_64:
        return "translated_x86_64";
@@ -83,7 +165,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/co
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/components/variations/proto/study.proto b/components/variations/proto/study.proto
 --- a/components/variations/proto/study.proto	2000-01-01 00:00:00.000000000 +0800
 +++ b/components/variations/proto/study.proto	2000-01-01 00:00:00.000000000 +0800
-@@ -293,6 +293,8 @@ message Study {
+@@ -294,6 +294,8 @@ message Study {
      // A Mac-only value, indicating an x86-64 binary running on an arm64 host
      // via "Rosetta 2" binary translation.
      TRANSLATED_X86_64 = 4;
@@ -91,11 +173,11 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/co
 +    LOONGARCH64 = 5;
    }
  
-   // Enum to pass as optional bool.
+   // Possible states of the policy restriction filter.
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/components/variations/service/variations_field_trial_creator.cc b/components/variations/service/variations_field_trial_creator.cc
 --- a/components/variations/service/variations_field_trial_creator.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/components/variations/service/variations_field_trial_creator.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -104,6 +104,9 @@ Study::CpuArchitecture GetCurrentCpuArch
+@@ -101,6 +101,9 @@ Study::CpuArchitecture GetCurrentCpuArch
    if (process_arch == "x86") {
      return Study::X86_32;
    }
@@ -128,6 +210,74 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/ex
          ]
        },
        {
+diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/third_party/blink/renderer/build/scripts/scripts.gni b/third_party/blink/renderer/build/scripts/scripts.gni
+--- a/third_party/blink/renderer/build/scripts/scripts.gni	2000-01-01 00:00:00.000000000 +0800
++++ b/third_party/blink/renderer/build/scripts/scripts.gni	2000-01-01 00:00:00.000000000 +0800
+@@ -109,7 +109,7 @@ if (host_os == "win") {
+   }
+   gperf_exe = _mac_bin_path + "gperf"
+ } else {
+-  gperf_exe = "//third_party/gperf/cipd/bin/gperf"
++  gperf_exe = "gperf"
+ }
+ 
+ # Templates --------------------------------------------------------------------
+@@ -275,9 +275,8 @@ template("css_properties") {
+     }
+     other_args = [
+       "--gperf",
+-      rebase_path(gperf_exe, root_build_dir),
++      gperf_exe,
+     ]
+-    sources = [ gperf_exe ]
+ 
+     outputs = invoker.outputs
+   }
+diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/third_party/blink/renderer/core/BUILD.gn b/third_party/blink/renderer/core/BUILD.gn
+--- a/third_party/blink/renderer/core/BUILD.gn	2000-01-01 00:00:00.000000000 +0800
++++ b/third_party/blink/renderer/core/BUILD.gn	2000-01-01 00:00:00.000000000 +0800
+@@ -865,9 +865,8 @@ code_generator("make_core_generated_atru
+   ]
+   other_args = [
+     "--gperf",
+-    rebase_path(gperf_exe, root_build_dir),
++    gperf_exe,
+   ]
+-  sources = [ gperf_exe ]
+ }
+ 
+ code_generator("make_core_generated_media_features") {
+@@ -925,9 +924,8 @@ code_generator("make_core_generated_css_
+   ]
+   other_args = [
+     "--gperf",
+-    rebase_path(gperf_exe, root_build_dir),
++    gperf_exe,
+   ]
+-  sources = [ gperf_exe ]
+ }
+ 
+ process_json5_files("make_core_generated_html_element_factory") {
+diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/third_party/blink/renderer/platform/BUILD.gn b/third_party/blink/renderer/platform/BUILD.gn
+--- a/third_party/blink/renderer/platform/BUILD.gn	2000-01-01 00:00:00.000000000 +0800
++++ b/third_party/blink/renderer/platform/BUILD.gn	2000-01-01 00:00:00.000000000 +0800
+@@ -104,7 +104,6 @@ blink_python_runner("runtime_feature_sta
+ 
+ blink_python_runner("color_data") {
+   script = "../build/scripts/gperf.py"
+-  sources = [ gperf_exe ]
+ 
+   color_data_gperf = "color_data.gperf"
+   inputs = [
+@@ -116,7 +115,7 @@ blink_python_runner("color_data") {
+   outputs = [ output_file ]
+ 
+   args = [
+-    rebase_path(gperf_exe, root_build_dir),
++    gperf_exe,
+     "--key-positions=*",
+     "-D",
+     "-s",
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h b/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h
 --- a/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h	2000-01-01 00:00:00.000000000 +0800
 +++ b/third_party/blink/renderer/platform/graphics/cpu/loongarch64/webgl_image_conversion_lsx.h	2000-01-01 00:00:00.000000000 +0800
@@ -260,7 +410,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/th
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/third_party/boringssl/src/include/openssl/target.h b/third_party/boringssl/src/include/openssl/target.h
 --- a/third_party/boringssl/src/include/openssl/target.h	2000-01-01 00:00:00.000000000 +0800
 +++ b/third_party/boringssl/src/include/openssl/target.h	2000-01-01 00:00:00.000000000 +0800
-@@ -54,6 +54,8 @@
+@@ -56,6 +56,8 @@
  #define OPENSSL_32_BIT
  #elif defined(__myriad2__)
  #define OPENSSL_32_BIT
@@ -269,18 +419,103 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/th
  #else
  // The list above enumerates the platforms that BoringSSL supports. For these
  // platforms we keep a reasonable bar of not breaking them: automated test
-diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/third_party/devtools-frontend/src/scripts/build/rollup.config.mjs b/third_party/devtools-frontend/src/scripts/build/rollup.config.mjs
---- a/third_party/devtools-frontend/src/scripts/build/rollup.config.mjs	2000-01-01 00:00:00.000000000 +0800
-+++ b/third_party/devtools-frontend/src/scripts/build/rollup.config.mjs	2000-01-01 00:00:00.000000000 +0800
-@@ -19,7 +19,7 @@ export default commandLineArgs => ({
-     sourcemap: Boolean(commandLineArgs.configSourcemaps),
-   }],
-   plugins: [
--    terser(),
-+    // terser(),
-     {
-       name: 'devtools-plugin',
-       resolveId(source, importer) {
+diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/third_party/breakpad/breakpad/src/common/dwarf_cfi_to_module.cc b/third_party/breakpad/breakpad/src/common/dwarf_cfi_to_module.cc
+--- a/third_party/breakpad/breakpad/src/common/dwarf_cfi_to_module.cc	2000-01-01 00:00:00.000000000 +0800
++++ b/third_party/breakpad/breakpad/src/common/dwarf_cfi_to_module.cc	2000-01-01 00:00:00.000000000 +0800
+@@ -172,6 +172,21 @@ vector<std::string> DwarfCFIToModule::Re
+   return MakeVector(names, sizeof(names) / sizeof(names[0]));
+ }
+ 
++vector<std::string> DwarfCFIToModule::RegisterNames::LOONG64() {
++  static const char *const names[] = {
++    "$r0",  "$r1",  "$r2",  "$r3",  "$r4",  "$r5",  "$r6",  "$r7",
++    "$r8",  "$r9",  "$r10", "$r11", "$r12", "$r13", "$r14", "$r15",
++    "$r16", "$r17", "$r18", "$r19", "$r20", "$r21", "$r22", "$r23",
++    "$r24", "$r25", "$r26", "$r27", "$r28", "$r29", "$r30", "$r31",
++    "$f0",  "$f1",  "$f2",  "$f3",  "$f4",  "$f5",  "$f6",  "$f7",
++    "$f8",  "$f9",  "$f10", "$f11", "$f12", "$f13", "$f14", "$f15",
++    "$f16", "$f17", "$f18", "$f19", "$f20", "$f21", "$f22", "$f23",
++    "$f24", "$f25", "$f26", "$f27", "$f28", "$f29", "$f30", "$f31"
++  };
++
++  return MakeVector(names, sizeof(names) / sizeof(names[0]));
++}
++
+ bool DwarfCFIToModule::Entry(size_t offset, uint64_t address, uint64_t length,
+                              uint8_t version, const std::string& augmentation,
+                              unsigned return_address) {
+diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/third_party/breakpad/breakpad/src/common/dwarf_cfi_to_module.h b/third_party/breakpad/breakpad/src/common/dwarf_cfi_to_module.h
+--- a/third_party/breakpad/breakpad/src/common/dwarf_cfi_to_module.h	2000-01-01 00:00:00.000000000 +0800
++++ b/third_party/breakpad/breakpad/src/common/dwarf_cfi_to_module.h	2000-01-01 00:00:00.000000000 +0800
+@@ -116,6 +116,9 @@ class DwarfCFIToModule: public CallFrame
+     // RISC-V.
+     static vector<std::string> RISCV();
+ 
++    // LoongArch64.
++    static vector<std::string> LOONG64();
++
+    private:
+     // Given STRINGS, an array of C strings with SIZE elements, return an
+     // equivalent vector<std::string>.
+diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/third_party/breakpad/breakpad/src/common/linux/dump_symbols.cc b/third_party/breakpad/breakpad/src/common/linux/dump_symbols.cc
+--- a/third_party/breakpad/breakpad/src/common/linux/dump_symbols.cc	2000-01-01 00:00:00.000000000 +0800
++++ b/third_party/breakpad/breakpad/src/common/linux/dump_symbols.cc	2000-01-01 00:00:00.000000000 +0800
+@@ -110,6 +110,12 @@ using google_breakpad::wasteful_vector;
+ #define EM_AARCH64      183
+ #endif
+ 
++// Define LoongArch ELF architecture if host machine does not include this
++// define.
++#ifndef EM_LOONGARCH
++#define EM_LOONGARCH    258
++#endif
++
+ // Define ZStd compression if host machine does not include this define.
+ #ifndef ELFCOMPRESS_ZSTD
+ #define ELFCOMPRESS_ZSTD 2
+@@ -535,6 +541,9 @@ bool DwarfCFIRegisterNames(const typenam
+     case EM_RISCV:
+       *register_names = DwarfCFIToModule::RegisterNames::RISCV();
+       return true;
++    case EM_LOONGARCH:
++      *register_names = DwarfCFIToModule::RegisterNames::LOONG64();
++      return true;
+     default:
+       return false;
+   }
+@@ -1099,6 +1108,7 @@ const char* ElfArchitecture(const typena
+     case EM_SPARCV9:    return "sparcv9";
+     case EM_X86_64:     return "x86_64";
+     case EM_RISCV:      return "riscv";
++    case EM_LOONGARCH:  return "loong64";
+     case EM_NDS32:      return "nds32";
+     default: return nullptr;
+   }
+diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/third_party/breakpad/breakpad/src/common/linux/memory_mapped_file.cc b/third_party/breakpad/breakpad/src/common/linux/memory_mapped_file.cc
+--- a/third_party/breakpad/breakpad/src/common/linux/memory_mapped_file.cc	2000-01-01 00:00:00.000000000 +0800
++++ b/third_party/breakpad/breakpad/src/common/linux/memory_mapped_file.cc	2000-01-01 00:00:00.000000000 +0800
+@@ -72,7 +72,8 @@ bool MemoryMappedFile::Map(const char* p
+ 
+ #if defined(__x86_64__) || defined(__aarch64__) || \
+    (defined(__mips__) && _MIPS_SIM == _ABI64) || \
+-   (defined(__riscv) && __riscv_xlen == 64)
++   (defined(__riscv) && __riscv_xlen == 64) || \
++   defined(__loongarch_lp64)
+ 
+   struct kernel_stat st;
+   if (sys_fstat(fd, &st) == -1 || st.st_size < 0) {
+diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/third_party/libvpx/source/config/linux/loongarch/vpx_config.h b/third_party/libvpx/source/config/linux/loongarch/vpx_config.h
+--- a/third_party/libvpx/source/config/linux/loongarch/vpx_config.h	2000-01-01 00:00:00.000000000 +0800
++++ b/third_party/libvpx/source/config/linux/loongarch/vpx_config.h	2000-01-01 00:00:00.000000000 +0800
+@@ -47,7 +47,7 @@
+ #define HAVE_VSX 0
+ #define HAVE_MMI 0
+ #define HAVE_LSX 1
+-#define HAVE_LASX 1
++#define HAVE_LASX 0
+ #define HAVE_VPX_PORTS 1
+ #define HAVE_PTHREAD_H 1
+ #define HAVE_PTHREAD_SETNAME_NP 1
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/third_party/skia/src/opts/SkOpts_SetTarget.h b/third_party/skia/src/opts/SkOpts_SetTarget.h
 --- a/third_party/skia/src/opts/SkOpts_SetTarget.h	2000-01-01 00:00:00.000000000 +0800
 +++ b/third_party/skia/src/opts/SkOpts_SetTarget.h	2000-01-01 00:00:00.000000000 +0800

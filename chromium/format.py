@@ -1,108 +1,97 @@
 #!/usr/bin/env python3
-"""
-Format diff file to use a/b prefixes and standardized timestamps.
+"""Normalize Chromium patch paths and timestamps.
 
-This script converts diff files from:
-  diff ... -r original/path patched/path
-  --- original/path timestamp
-  +++ patched/path timestamp
+The generated Chromium LoongArch patchset is produced from two source trees
+(`a` and `b`).  Every patch header must be deterministic:
 
-To:
-  diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/path b/path
-  --- a/path 2000-01-01 00:00:00.000000000 +0800
-  +++ b/path 2000-01-01 00:00:00.000000000 +0800
+  --- a/path\t2000-01-01 00:00:00.000000000 +0800
+  +++ b/path\t2000-01-01 00:00:00.000000000 +0800
 """
+
+from __future__ import annotations
 
 import re
+import shlex
+import shutil
 import sys
 import tempfile
-import shutil
+from pathlib import PurePosixPath
+
+TIMESTAMP = "2000-01-01 00:00:00.000000000 +0800"
+DIFF_PREFIX = (
+    "diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude "
+    "-N -u -r"
+)
+
+_FILE_LINE_RE = re.compile(r"^(---|\+\+\+)\s+(\S+)(?:\s+.*)?$")
 
 
-def format_diff(input_file, output_file):
-    """Format a diff file with standardized paths and timestamps."""
+def _relative_path(path: str) -> str:
+    """Return a path relative to the clean/patched tree root."""
+    if path == "/dev/null":
+        return path
 
-    # Standard timestamp to use
-    TIMESTAMP = "2000-01-01 00:00:00.000000000 +0800"
+    posix = PurePosixPath(path.replace("\\", "/"))
+    parts = posix.parts
 
-    # Pattern to match diff command line
-    # Matches: diff ... -r some-prefix-original/path some-prefix-patched/path
-    diff_pattern = re.compile(
-        r"^diff\s+.*?\s+-r\s+\S*?([^\s]+)\s+\S*?([^\s]+)$"
-    )
+    # Absolute paths may look like /mnt/.../a/foo or /mnt/.../b/foo.
+    for marker in ("a", "b"):
+        if marker in parts:
+            index = parts.index(marker)
+            if index + 1 < len(parts):
+                return "/".join(parts[index + 1 :])
 
-    # Pattern to match --- line
-    # Matches: --- some-prefix-original/path timestamp
-    old_file_pattern = re.compile(
-        r"^---\s+(\S+?)(?:\s+\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d+\s+[+-]\d{4})?$"
-    )
+    # Normal diff output from `diff ... a b` is a/foo or b/foo.
+    if parts and parts[0] in ("a", "b"):
+        return "/".join(parts[1:])
 
-    # Pattern to match +++ line
-    # Matches: +++ some-prefix-patched/path timestamp
-    new_file_pattern = re.compile(
-        r"^\+\+\+\s+(\S+?)(?:\s+\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d+\s+[+-]\d{4})?$"
-    )
+    return str(posix)
 
-    with open(input_file, 'r', encoding='utf-8') as f_in, \
-         open(output_file, 'w', encoding='utf-8') as f_out:
 
-        for line in f_in:
-            # Handle diff command line
-            diff_match = diff_pattern.match(line)
-            if diff_match:
-                path = diff_match.group(1)
-                # Extract just the relative path
-                if '/' in path:
-                    # Find the first real path component after the prefix
-                    parts = path.split('/')
-                    rel_path = '/'.join(parts[1:]) if len(parts) > 1 else path
-                else:
-                    rel_path = path
+def normalize_diff_lines(lines: list[str]) -> list[str]:
+    """Normalize diff command lines plus ---/+++ headers."""
+    normalized: list[str] = []
 
-                # Write standardized diff command
-                f_out.write(
-                    f"diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude "
-                    f"-N -u -r a/{rel_path} b/{rel_path}\n"
-                )
+    for line in lines:
+        if line.startswith("diff "):
+            tokens = shlex.split(line)
+            if len(tokens) < 3:
+                raise ValueError(f"malformed diff line: {line.rstrip()}")
+            old_rel = _relative_path(tokens[-2])
+            new_rel = _relative_path(tokens[-1])
+            rel = new_rel if old_rel == "/dev/null" else old_rel
+            normalized.append(f"{DIFF_PREFIX} a/{rel} b/{rel}\n")
+            continue
+
+        file_match = _FILE_LINE_RE.match(line)
+        if file_match:
+            marker, path = file_match.groups()
+            if path == "/dev/null":
+                normalized.append(f"{marker} /dev/null\t{TIMESTAMP}\n")
                 continue
+            rel = _relative_path(path)
+            tree = "a" if marker == "---" else "b"
+            normalized.append(f"{marker} {tree}/{rel}\t{TIMESTAMP}\n")
+            continue
 
-            # Handle --- line (old file)
-            old_match = old_file_pattern.match(line)
-            if old_match:
-                path = old_match.group(1)
-                # Extract relative path
-                if '/' in path:
-                    parts = path.split('/')
-                    rel_path = '/'.join(parts[1:]) if len(parts) > 1 else path
-                else:
-                    rel_path = path
+        normalized.append(line)
 
-                f_out.write(f"--- a/{rel_path}\t{TIMESTAMP}\n")
-                continue
-
-            # Handle +++ line (new file)
-            new_match = new_file_pattern.match(line)
-            if new_match:
-                path = new_match.group(1)
-                # Extract relative path
-                if '/' in path:
-                    parts = path.split('/')
-                    rel_path = '/'.join(parts[1:]) if len(parts) > 1 else path
-                else:
-                    rel_path = path
-
-                f_out.write(f"+++ b/{rel_path}\t{TIMESTAMP}\n")
-                continue
-
-            # All other lines pass through unchanged
-            f_out.write(line)
+    return normalized
 
 
-def main():
+def normalize_diff_file(input_file: str, output_file: str) -> None:
+    with open(input_file, "r", encoding="utf-8") as f_in:
+        lines = f_in.readlines()
+
+    with open(output_file, "w", encoding="utf-8") as f_out:
+        f_out.writelines(normalize_diff_lines(lines))
+
+
+def main() -> None:
     if len(sys.argv) < 2 or len(sys.argv) > 3:
         print(f"Usage: {sys.argv[0]} <diff_file> [output_file]")
-        print(f"Example: {sys.argv[0]} input.diff           # in-place modification")
-        print(f"         {sys.argv[0]} input.diff output.diff  # write to different file")
+        print(f"Example: {sys.argv[0]} input.diff           # in-place")
+        print(f"         {sys.argv[0]} input.diff output.diff")
         sys.exit(1)
 
     input_file = sys.argv[1]
@@ -110,19 +99,16 @@ def main():
 
     try:
         if output_file is None:
-            # In-place modification using temporary file
-            with tempfile.NamedTemporaryFile(mode='w', delete=False, encoding='utf-8') as tmp_file:
+            with tempfile.NamedTemporaryFile(mode="w", delete=False, encoding="utf-8") as tmp_file:
                 tmp_path = tmp_file.name
-
-            format_diff(input_file, tmp_path)
+            normalize_diff_file(input_file, tmp_path)
             shutil.move(tmp_path, input_file)
             print(f"Successfully formatted diff file: {input_file}")
         else:
-            # Write to different file
-            format_diff(input_file, output_file)
+            normalize_diff_file(input_file, output_file)
             print(f"Successfully formatted diff file: {input_file} -> {output_file}")
-    except Exception as e:
-        print(f"Error formatting diff file: {e}", file=sys.stderr)
+    except Exception as exc:
+        print(f"Error formatting diff file: {exc}", file=sys.stderr)
         sys.exit(1)
 
 
