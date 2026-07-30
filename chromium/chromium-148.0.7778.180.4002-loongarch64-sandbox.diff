@@ -78,7 +78,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc b/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
 --- a/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -259,7 +259,7 @@ ResultExpr EvaluateSyscallImpl(int fs_de
+@@ -260,7 +260,7 @@ ResultExpr EvaluateSyscallImpl(int fs_de
  
    // TODO(crbug.com/40528912): should i386 really be in this list?
  #if defined(__i386__) || defined(__x86_64__) || defined(__mips__) || \
@@ -87,7 +87,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
    if (sysno == __NR_mmap)
      return RestrictMmapFlags();
  #endif
-@@ -304,6 +304,7 @@ ResultExpr EvaluateSyscallImpl(int fs_de
+@@ -305,6 +305,7 @@ ResultExpr EvaluateSyscallImpl(int fs_de
      return RestrictMemfdCreate();
    }
  
@@ -95,18 +95,18 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
    // The fstatat syscalls are file system syscalls, which will be denied below
    // with fs_denied_errno. However some allowed fstat syscalls are rewritten by
    // libc implementations to fstatat syscalls, and we need to rewrite them back.
-@@ -321,6 +322,7 @@ ResultExpr EvaluateSyscallImpl(int fs_de
+@@ -322,6 +323,7 @@ ResultExpr EvaluateSyscallImpl(int fs_de
      return If(mask == STATX_BASIC_STATS, Error(ENOSYS))
          .Else(Error(fs_denied_errno));
    }
 +#endif
  
-   if (SyscallSets::IsFileSystem(sysno) ||
-       SyscallSets::IsCurrentDirectory(sysno)) {
+ #if defined(__NR_prlimit64)
+   if (sysno == __NR_prlimit64) {
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sandbox/linux/seccomp-bpf-helpers/sigsys_handlers.cc b/sandbox/linux/seccomp-bpf-helpers/sigsys_handlers.cc
 --- a/sandbox/linux/seccomp-bpf-helpers/sigsys_handlers.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/sandbox/linux/seccomp-bpf-helpers/sigsys_handlers.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -386,6 +386,7 @@ intptr_t SIGSYSSchedHandler(const struct
+@@ -381,6 +381,7 @@ intptr_t SIGSYSSchedHandler(const struct
  
  intptr_t SIGSYSFstatatHandler(const struct arch_seccomp_data& args,
                                void* fs_denied_errno) {
@@ -114,7 +114,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
    if (args.nr == __NR_fstatat_default) {
      if (*reinterpret_cast<const char*>(args.args[1]) == '\0' &&
          args.args[3] == static_cast<uint64_t>(AT_EMPTY_PATH)) {
-@@ -394,6 +395,7 @@ intptr_t SIGSYSFstatatHandler(const stru
+@@ -389,6 +390,7 @@ intptr_t SIGSYSFstatatHandler(const stru
      }
      return -reinterpret_cast<intptr_t>(fs_denied_errno);
    }
@@ -125,7 +125,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc b/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
 --- a/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -45,7 +45,7 @@
+@@ -44,7 +44,7 @@
  #endif
  
  #if BUILDFLAG(IS_LINUX) && !defined(__arm__) && !defined(__aarch64__) && \
@@ -529,7 +529,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sandbox/linux/services/syscall_wrappers.cc b/sandbox/linux/services/syscall_wrappers.cc
 --- a/sandbox/linux/services/syscall_wrappers.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/sandbox/linux/services/syscall_wrappers.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -10,6 +10,7 @@
+@@ -5,6 +5,7 @@
  #include "sandbox/linux/services/syscall_wrappers.h"
  
  #include <fcntl.h>
@@ -537,7 +537,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
  #include <pthread.h>
  #include <sched.h>
  #include <setjmp.h>
-@@ -65,7 +66,7 @@ long sys_clone(unsigned long flags,
+@@ -60,7 +61,7 @@ long sys_clone(unsigned long flags,
    if (ctid) MSAN_UNPOISON(ctid, sizeof(*ctid));
    // See kernel/fork.c in Linux. There is different ordering of sys_clone
    // parameters depending on CONFIG_CLONE_BACKWARDS* configuration options.
@@ -546,7 +546,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
    return syscall(__NR_clone, flags, child_stack, ptid, ctid, tls);
  #elif defined(ARCH_CPU_X86) || defined(ARCH_CPU_ARM_FAMILY) || \
      defined(ARCH_CPU_MIPS_FAMILY)
-@@ -170,9 +171,53 @@ int sys_sigaction(int signum,
+@@ -165,9 +166,53 @@ int sys_sigaction(int signum,
    return sigaction(signum, act, oldact);
  }
  
@@ -601,7 +601,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
    res = syscall(__NR_newfstatat, AT_FDCWD, path, stat_buf, 0);
  #else
    res = syscall(__NR_stat, path, stat_buf);
-@@ -184,7 +229,12 @@ int sys_stat(const char* path, struct ke
+@@ -179,7 +224,12 @@ int sys_stat(const char* path, struct ke
  
  int sys_lstat(const char* path, struct kernel_stat* stat_buf) {
    int res;
@@ -637,7 +637,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sandbox/linux/syscall_broker/broker_client.cc b/sandbox/linux/syscall_broker/broker_client.cc
 --- a/sandbox/linux/syscall_broker/broker_client.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/sandbox/linux/syscall_broker/broker_client.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -198,6 +198,21 @@ int BrokerClient::Stat64(const char* pat
+@@ -194,6 +194,21 @@ int BrokerClient::Stat64(const char* pat
                             sizeof(*sb));
  }
  
@@ -697,29 +697,27 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sandbox/linux/syscall_broker/broker_host.cc b/sandbox/linux/syscall_broker/broker_host.cc
 --- a/sandbox/linux/syscall_broker/broker_host.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/sandbox/linux/syscall_broker/broker_host.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -302,6 +302,21 @@ void BrokerHost::StatFileForIPC(BrokerCo
+@@ -302,6 +302,19 @@ void BrokerHost::StatFileForIPC(BrokerCo
      RAW_CHECK(reply->AddIntToMessage(0));
-     RAW_CHECK(
-         reply->AddDataToMessage(reinterpret_cast<char*>(&sb), sizeof(sb)));
+     RAW_CHECK(reply->AddDataToMessage(
+         base::byte_span_from_ref(reinterpret_cast<char*>(&sb))));
 +#elif defined(__loongarch__)
-+    // handle COMMAND_STATX
 +    DCHECK(command_type == COMMAND_STATX);
 +    struct kernel_statx sb;
 +
 +    int sts = sandbox::sys_statx(AT_FDCWD, file_to_access,
-+                                     follow_links ? 0 : AT_SYMLINK_NOFOLLOW,
-+				     STATX_BASIC_STATS, &sb);
++                                 follow_links ? 0 : AT_SYMLINK_NOFOLLOW,
++                                 STATX_BASIC_STATS, &sb);
 +    if (sts < 0) {
 +      RAW_CHECK(reply->AddIntToMessage(-errno));
 +      return;
 +    }
 +    RAW_CHECK(reply->AddIntToMessage(0));
-+    RAW_CHECK(
-+        reply->AddDataToMessage(reinterpret_cast<char*>(&sb), sizeof(sb)));
++    RAW_CHECK(reply->AddDataToMessage(base::byte_span_from_ref(sb)));
  #else  // defined(__NR_fstatat64)
      // We should not reach here on 64-bit systems, as the *stat*64() are only
      // necessary on 32-bit.
-@@ -441,7 +456,8 @@ bool BrokerHost::HandleRemoteCommand(Bro
+@@ -441,7 +454,8 @@ bool BrokerHost::HandleRemoteCommand(Bro
        break;
      }
      case COMMAND_STAT:
@@ -732,7 +730,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sandbox/linux/syscall_broker/broker_process.cc b/sandbox/linux/syscall_broker/broker_process.cc
 --- a/sandbox/linux/syscall_broker/broker_process.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/sandbox/linux/syscall_broker/broker_process.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -120,44 +120,46 @@ bool BrokerProcess::IsSyscallBrokerable(
+@@ -119,44 +119,46 @@ bool BrokerProcess::IsSyscallBrokerable(
    // and are default disabled in Android. So, we should refuse to broker them
    // to be consistent with the platform's restrictions.
    switch (sysno) {
@@ -786,7 +784,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
      case __NR_stat:
      case __NR_lstat:
  #endif
-@@ -167,6 +169,9 @@ bool BrokerProcess::IsSyscallBrokerable(
+@@ -166,6 +168,9 @@ bool BrokerProcess::IsSyscallBrokerable(
  #if defined(__NR_fstatat64)
      case __NR_fstatat64:
  #endif
@@ -796,7 +794,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
  #if defined(__x86_64__) || defined(__aarch64__)
      case __NR_newfstatat:
  #endif
-@@ -182,7 +187,7 @@ bool BrokerProcess::IsSyscallBrokerable(
+@@ -181,7 +186,7 @@ bool BrokerProcess::IsSyscallBrokerable(
        return !fast_check || policy_->allowed_command_set.test(COMMAND_STAT);
  #endif
  
@@ -2208,7 +2206,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sandbox/policy/linux/bpf_gpu_policy_linux.cc b/sandbox/policy/linux/bpf_gpu_policy_linux.cc
 --- a/sandbox/policy/linux/bpf_gpu_policy_linux.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/sandbox/policy/linux/bpf_gpu_policy_linux.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -73,7 +73,7 @@ ResultExpr GpuProcessPolicy::EvaluateSys
+@@ -74,7 +74,7 @@ ResultExpr GpuProcessPolicy::EvaluateSys
      (defined(ARCH_CPU_MIPS_FAMILY) && defined(ARCH_CPU_32_BITS))
      case __NR_ftruncate64:
  #endif
@@ -2220,7 +2218,7 @@ diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sa
 diff '--color=auto' -p -X ../chromium-loongarch64/chromium/exclude -N -u -r a/sandbox/policy/linux/bpf_network_policy_linux.cc b/sandbox/policy/linux/bpf_network_policy_linux.cc
 --- a/sandbox/policy/linux/bpf_network_policy_linux.cc	2000-01-01 00:00:00.000000000 +0800
 +++ b/sandbox/policy/linux/bpf_network_policy_linux.cc	2000-01-01 00:00:00.000000000 +0800
-@@ -259,7 +259,7 @@ ResultExpr NetworkProcessPolicy::Evaluat
+@@ -264,7 +264,7 @@ ResultExpr NetworkProcessPolicy::Evaluat
      case __NR_fdatasync:
      case __NR_fsync:
      case __NR_mremap:
